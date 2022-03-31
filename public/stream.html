@@ -16,7 +16,7 @@
     </div>
     <div id="post_update" class="alert" style="display: none;">
         <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-        <div class="status_text"><strong>Post update!</strong> Latest posts found! Refresh the page to see them :)</div>
+        <div class="status_text"><strong>Post update!</strong> Latest posts found! Please refresh the page to see them :)</div>
     </div>
     <div id="container">
         <div class="post_holder">
@@ -94,7 +94,7 @@
                 dataType: 'json',
                 data: {'cnt': postsCnt},
                 success: function(d) {
-                    console.log(d);
+                    // console.log(d);
                     if (d['update']){
                         $('#post_update').fadeIn(2000, ()=>{
                             document.querySelector('#post_update').style.display = 'block';
@@ -115,7 +115,7 @@
                 dataType: 'json',
                 data: {'start':loadedContent, 'end':loadedContent+loadContentAdd},
                 success: function(d) {
-                    console.log(d);
+                    // console.log(d);
                     content = d;
                     content.sort(function(a, b) {
                         var keyA = new Date(a.time), keyB = new Date(b.time);

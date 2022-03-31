@@ -11,6 +11,10 @@ body{
   overflow-x: hidden;
   font-family: 'Montserrat';
 }
+h2{
+  color:rgb(149, 223, 162);
+  margin: 6px;
+}
 
 #header{
   width: 100%;
@@ -29,7 +33,6 @@ body{
     display: flex;
     flex-direction: column;
     margin: 10px;
-    width: 100%;
     justify-content: center;
     align-items: center;
 }

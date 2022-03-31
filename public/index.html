@@ -185,7 +185,7 @@
 
       video.width = sWidth;
       video.height = sHeight;
-      console.log(sWidth, sHeight)
+      // console.log(sWidth, sHeight)
 
       var videoBlob = null;
 
@@ -246,11 +246,11 @@
             // player.record().saveAs({'video': 'my-video-file-name.webm'});
 
             mode = 'video'
-            console.log('finished recording: ', player);
+            // console.log('finished recording: ', player);
         });
 
         function uploadFile(e){
-          console.log(e.files[0]);
+          // console.log(e.files[0]);
           mode = 'upload'
 
           video_button.innerHTML = 'Record video'
@@ -296,7 +296,7 @@
             var formData = new FormData();
             formData.append('file', data, data.name);
 
-            console.log('uploading recording:', data.name);
+            // console.log('uploading recording:', data.name);
             var fileData = "";
             fetch('/upload2', {
                 method: 'POST',
@@ -304,25 +304,28 @@
             }).then(
                 success => success.json()
             ).then(d => {
-              console.log('data',d);
+              // console.log('data',d);
                $.ajax({
                 url: '/upload',
                 type: 'post',
                 dataType: 'text',
                 data: { name: name, message: message, data: "", mode: mode, filename:d.filename, type: d.type },
                 success: function(dt) {
-                  console.log(dt);
+                  // console.log(dt);
                   uploadFinished();
                 }
               });
 
            })
             .catch(error => {
-                console.error('an upload error occurred!')
-                $('#post_update').fadeIn(2000, ()=>{
-                    document.querySelector('#status_text').innerHTML = "<strong>Status!</strong> Upload successfull!"
+                // console.error('an upload error occurred!')
+
+                var status_text = document.getElementsByClassName('status_text')[0];
+                status_text.innerHTML = "<strong>Error! </strong> Can't upload the file. Unknown error accured!!";
+                status_text.style.backgroundColor = "#f43636";
+                $('#post_update').fadeIn(3000, ()=>{
                     document.querySelector('#post_update').style.display = 'block';
-                    $('#post_update').fadeOut(4000, ()=>{
+                    $('#post_update').fadeOut(3000, ()=>{
                       document.querySelector('#post_update').style.display = 'none';
                     })
                 });
@@ -336,7 +339,7 @@
               dataType: 'text',
               data: { name: name, message: message, data: data, mode: mode, filename:'image', type:'png' },
               success: function(d) {
-                console.log(d);
+                // console.log(d);
                 uploadFinished();
               }
             });
@@ -345,7 +348,7 @@
             var formData = new FormData();
             formData.append('file', document.querySelector("#greeting").files[0], 'upload');
 
-            console.log('uploading recording:', 'testfile');
+            // console.log('uploading recording:', 'testfile');
             var filename = "";
             fetch('/upload2', {
                 method: 'POST',
@@ -353,22 +356,30 @@
             }).then(
                 success => success.json()
             ).then(d => {
-              console.log('data',d);
+              // console.log('data',d);
                $.ajax({
                 url: '/upload',
                 type: 'post',
                 dataType: 'text',
                 data: { name: name, message: message, data: "", mode: mode, filename:d.filename, type: d.type },
                 success: function(dt) {
-                  console.log(dt);
+                  // console.log(dt);
                   uploadFinished();
                 }
               });
 
            })
-            .catch(
-                error => console.error('an upload error occurred!')
-            );
+            .catch(error => {
+              var status_text = document.getElementsByClassName('status_text')[0];
+                status_text.innerHTML = "<strong>Error! </strong> Can't upload the file. Unknown error accured!!";
+                status_text.style.backgroundColor = "#f43636";
+                $('#post_update').fadeIn(3000, ()=>{
+                    document.querySelector('#post_update').style.display = 'block';
+                    $('#post_update').fadeOut(3000, ()=>{
+                      document.querySelector('#post_update').style.display = 'none';
+                    })
+                });
+            });
           }
         });
       
