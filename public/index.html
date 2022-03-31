@@ -17,6 +17,7 @@
   <body>
     <div id='header'>
       <h2>Wedding Attendance</h2>
+      <div><a href="/stream.html">Streaming</a></div>
     </div>
     <div id="post_update" class="alert" style="display: none;">
       <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
@@ -282,9 +283,9 @@
             status_text.style.backgroundColor = "#f43636";
             $('#post_update').fadeIn(3000, ()=>{
                 document.querySelector('#post_update').style.display = 'block';
-                $('#post_update').fadeOut(3000, ()=>{
+                setTimeout($('#post_update').fadeOut(3000, ()=>{
                   document.querySelector('#post_update').style.display = 'none';
-                })
+                }), 3000);
             });
             // alert('Please enter Name and Message, And also make sure you record a greeting Photo/Video!')
             return
@@ -325,9 +326,9 @@
                 status_text.style.backgroundColor = "#f43636";
                 $('#post_update').fadeIn(3000, ()=>{
                     document.querySelector('#post_update').style.display = 'block';
-                    $('#post_update').fadeOut(3000, ()=>{
+                    setTimeout($('#post_update').fadeOut(3000, ()=>{
                       document.querySelector('#post_update').style.display = 'none';
-                    })
+                    }), 3000);
                 });
             });
 
@@ -375,9 +376,9 @@
                 status_text.style.backgroundColor = "#f43636";
                 $('#post_update').fadeIn(3000, ()=>{
                     document.querySelector('#post_update').style.display = 'block';
-                    $('#post_update').fadeOut(3000, ()=>{
+                    setTimeout($('#post_update').fadeOut(3000, ()=>{
                       document.querySelector('#post_update').style.display = 'none';
-                    })
+                    }), 3000);
                 });
             });
           }

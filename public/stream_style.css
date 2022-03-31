@@ -17,10 +17,12 @@ h2{
 }
 
 #header{
-  width: 100%;
   background-color: #04AA6D;
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  align-content: center;
   padding: 5px 5px;
   box-shadow: 1px 1px 5px 2px #888888;
 }
@@ -125,4 +127,17 @@ h2{
     background-color: #36bef4;
     color: white;
     padding: 10px;
+  }
+  a{
+    text-decoration: none;
+    color: rgb(149, 223, 162);
+    margin: 10px;
+    font-weight: bold;
+    font-size: 19px;
+  }
+
+  a:hover{
+    cursor: pointer;
+    font-size: 20px;
+    margin: 9px;
   }
