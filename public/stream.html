@@ -17,37 +17,14 @@
     </div>
     <div id="post_update" class="alert" style="display: none;">
         <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-        <div class="status_text"><strong>Post update!</strong> Latest posts found! Please refresh the page to see them :)</div>
+        <div class="status_text"><strong>Post update!</strong> Post update found please refresh the page to see them :)</div>
     </div>
     <div id="container">
-        <div class="post_holder">
-            <div class="post_username">Sathish</div>
-            <div class="post_content"><img src="ivan.jpg"/></div>
-            <div class="post_caption">
-                <div class="caption">
-                    Conguratultions for your wedding.. and happy togetherness!Conguratultions for your wedding.. and happy togetherness!Conguratultions for your wedding.. and happy togetherness!
-                </div>
-                <div class="post_timing">
-                    1 hour ago
-                </div>
-            </div>
+        <div id="empty" style="display: none; margin:15px">
+            <h4>No posts found!</h4> 
+            <h4>Please post your own to see them here...</h4>
         </div>
-        <div class="post_holder">
-            <div class="post_username">Sathish</div>
-            <div class="post_content">
-                <video muted controls autoplay>
-                    <source src="video.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video></div>
-            <div class="post_caption">
-                <div class="caption">
-                    Conguratultions for your wedding.. and happy togetherness!Conguratultions for your wedding.. and happy togetherness!Conguratultions for your wedding.. and happy togetherness!
-                </div>
-                <div class="post_timing">
-                    1 hour ago
-                </div>
-            </div>
-        </div>
+        <div id="spinner"><div class='spinner-loader' ></div></div>
         
     </div>
 
@@ -99,9 +76,9 @@
                     if (d['update']){
                         $('#post_update').fadeIn(2000, ()=>{
                             document.querySelector('#post_update').style.display = 'block';
-                            $('#post_update').fadeOut(4000, ()=>{
+                            setTimeout($('#post_update').fadeOut(4000, ()=>{
                             document.querySelector('#post_update').style.display = 'none';
-                            })
+                            }), 7000);
                         });
                         postsCnt = d['cnt'];
                     }
@@ -118,6 +95,7 @@
                 success: function(d) {
                     // console.log(d);
                     content = d;
+                    document.querySelector('#spinner').style.display = 'none';
                     content.sort(function(a, b) {
                         var keyA = new Date(a.time), keyB = new Date(b.time);
                         // Compare the 2 dates
@@ -125,6 +103,11 @@
                         if (keyA < keyB) return 1;
                         return 0;
                     });
+                    setInterval(update, 5000);
+                    if (content.length <= 0){
+                        document.querySelector('#empty').style.display = 'block'
+                        return
+                    }
                     postsCnt = d.length;
                     var container = document.querySelector('#container');
                     container.innerHTML = "";
@@ -136,8 +119,6 @@
                         }
                     })
                     loadedContent = loadContentAdd;
-
-                    setInterval(update, 5000);
                 }
               });
         }

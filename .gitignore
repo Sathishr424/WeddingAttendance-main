@@ -2,7 +2,8 @@
 
 # dependencies
 /node_modules
-/download
+/bu
+/tmp
 /.pnp
 .pnp.js
 

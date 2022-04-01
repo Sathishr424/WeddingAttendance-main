@@ -129,7 +129,7 @@ app.route('/getUpdate').post((req,res)=>{
             cnt += 1;
         }
     })
-    res.send({'update': cnt > data.cnt ? true : false, 'cnt': cnt});
+    res.send({'update': cnt != data.cnt ? true : false, 'cnt': cnt});
 })
 
 app.get("/video/:video", function (req, res) {

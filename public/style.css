@@ -89,7 +89,8 @@ footer a:hover{
 .formContainer{
   display: flex;
   width: 50%;
-  font-family: 'Avenir Black', 'Arial Black', sans-serif;
+  /* font-family: 'Avenir Black', 'Arial Black', sans-serif; */
+  font-family: 'Montserrat';
   flex-direction: column;
   font-size: 18px;
   flex-basis: 0;

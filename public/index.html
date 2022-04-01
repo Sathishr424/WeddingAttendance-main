@@ -105,17 +105,17 @@
         $('#post_update').fadeIn(2000, ()=>{
             document.querySelector('#post_update').style.display = 'block';
 
-            document.querySelector("#name").value = "";
-            document.querySelector("#message").value = "";
-            document.querySelector("#file_uploadContainer").innerHTML = `<input accept='image/*, video/*' onchange='uploadFile(this)' class="form-control" type="file" name="greeting" id='greeting'>`;
+            // document.querySelector("#name").value = "";
+            // document.querySelector("#message").value = "";
+            // document.querySelector("#file_uploadContainer").innerHTML = `<input accept='image/*, video/*' onchange='uploadFile(this)' class="form-control" type="file" name="greeting" id='greeting'>`;
             
-            canvas[0].getContext('2d').clearRect(0, 0, canvas[0].width, canvas[0].height);
-            canvas[1].getContext('2d').clearRect(0, 0, canvas[1].width, canvas[1].height);
-            document.querySelector("#videoRecordStatus").style.display = 'block'
-            mode = 'none';
-            $('#post_update').fadeOut(4000, ()=>{
+            // canvas[0].getContext('2d').clearRect(0, 0, canvas[0].width, canvas[0].height);
+            // canvas[1].getContext('2d').clearRect(0, 0, canvas[1].width, canvas[1].height);
+            // document.querySelector("#videoRecordStatus").style.display = 'block'
+            // mode = 'none';
+            setTimeout($('#post_update').fadeOut(4000, ()=>{
               document.querySelector('#post_update').style.display = 'none';
-            })
+            }), 3000);
         });
       }
 
