@@ -1,0 +1,27 @@
+{
+  "name": "WeddingAttendence",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "kill": "npx kill-port 4000"
+  },
+  "dependencies": {
+    "@ffmpeg/core": "^0.10.0",
+    "@ffmpeg/ffmpeg": "^0.10.1",
+    "@mattiasbuelens/web-streams-polyfill": "^0.3.2",
+    "body-parser": "^1.15.2",
+    "data-uri-to-buffer": "^4.0.0",
+    "express": "^4.14.0",
+    "ffmpeg.js": "^4.2.9003",
+    "multer": "^1.4.4",
+    "videojs-record": "^4.5.0",
+    "webm-wasm": "^0.4.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

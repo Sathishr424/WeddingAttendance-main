@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Attendance</title>
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    <link href="node_modules/video.js/dist/video-js.min.css" rel="stylesheet">
+
+    <!-- Style of VideoJS -->
+    <link href="node_modules/videojs-record/dist/css/videojs.record.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <style type="text/css">
+      
+    </style>
+  </head>
+  <body>
+    <div id='header'>
+      <h2>Wedding Attendance</h2>
+      <div><a href="/stream.html">Streaming</a></div>
+    </div>
+    <div id="post_update" class="alert" style="display: none;">
+      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+      <div class="status_text"><strong>Status!</strong> Upload successfull!</div>
+    </div>
+    <div id='container'>
+      <form class='formContainer' id='attendanceForm' enctype="multipart/form-data">
+          <label class="form-control" for='name'>Name</label>
+          <input class="form-control" type="text" name="name" id='name' placeholder="Name" required>
+          <label class="form-control" for='message'>Message</label>
+          <textarea maxlength="300" rows="5" class="form-control" name='message' id='message' placeholder="Type your message here..." required></textarea>
+          <label class="form-control" for='myVideo'>Video/Image Capture/Upload your own</label>
+
+          <div class='myBtn' id="start-camera">Capture image</div>
+          <canvas class="image_canvas"></canvas>
+
+          <div class='myBtn' id="start-video">Record video</div>
+          <div id='videoRecordStatus' style="display:none;">Video Recorded....</div>
+          <div id="file_uploadContainer"><input accept='image/*, video/*' onchange='uploadFile(this)' class="form-control" type="file" name="greeting" id='greeting'></div>
+          <input id='shareAttendance' class="myBtn" type="submit" name="Share" value='Share'>
+      </form>
+    </div>
+    <div id='imageModal' class='modal' style='display: none;'>
+      <div class="modelHead">
+        <h3>Image Capture</h3>
+        <span onclick="closeModal('image')" class="close">&times;</span>
+      </div>
+      <div class="modalBody">
+        <video id="myImage" style="object-fit: contain;" autoplay></video>
+        <canvas class="image_canvas"></canvas>
+        <button id="click-photo" class='myBtn'>Capture</button>
+      </div>
+      <div class="modalFooter">
+        <button id="proceedImage" class='myBtn'>Proceed</button>
+      </div>
+    </div>
+
+    <div id='videoModal' class='modal' style='display: none;'>
+      <div class="modelHead">
+        <h3>Video Recorder</h3>
+        <span onclick="closeModal('video')" class="close">&times;</span>
+      </div>
+      <div id='videoModalBody' class="modalBody">
+        <video id="myVideo" class="video-js vjs-default-skin myVideo" style="object-fit: contain;"></video>
+      </div>
+      <div class="modalFooter">
+        <button id="proceedVideo" class='myBtn'>Proceed</button>
+      </div>
+    </div>
+    <!-- <footer>
+      <div>designed and coded by <a href="https://instagram.com/sat_ig462/" target="_blank">Sat_ig462</a></div>
+      ©2022 Sathish462 
+    </footer> -->
+    <script src="https://code.jquery.com/jquery-2.2.1.min.js"
+        integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
+        crossorigin="anonymous"></script>
+
+    <script src="node_modules/video.js/dist/video.min.js"></script>
+
+    <!-- Load RecordRTC core and adapter -->
+    <script src="node_modules/recordrtc/RecordRTC.js"></script>
+    <script src="node_modules/webrtc-adapter/out/adapter.js"></script>
+    
+    <!-- Load VideoJS Record Extension -->
+    <script src="node_modules/videojs-record/dist/videojs.record.js"></script>
+    
+    <script type="text/javascript">
+
+      let mode = 'none';
+      let camera_button = document.querySelector("#start-camera");
+      let video_button = document.querySelector("#start-video");
+      let video = document.querySelector("#myImage");
+      let click_button = document.querySelector("#click-photo");
+      let canvas = document.getElementsByClassName("image_canvas");
+
+      var sWidth = window.screen.width;
+      var sHeight = window.screen.height;
+
+      let image_data_url = null;
+
+      function uploadFinished(){
+        var status_text = document.getElementsByClassName('status_text')[0];
+        status_text.innerHTML = "<strong>Status!</strong> Upload successfull! Please visit streaming to see your post on live.. ";
+        status_text.style.backgroundColor = "#36bef4";
+        $('#post_update').fadeIn(2000, ()=>{
+            document.querySelector('#post_update').style.display = 'block';
+
+            document.querySelector("#name").value = "";
+            document.querySelector("#message").value = "";
+            document.querySelector("#file_uploadContainer").innerHTML = `<input accept='image/*, video/*' onchange='uploadFile(this)' class="form-control" type="file" name="greeting" id='greeting'>`;
+            
+            canvas[0].getContext('2d').clearRect(0, 0, canvas[0].width, canvas[0].height);
+            canvas[1].getContext('2d').clearRect(0, 0, canvas[1].width, canvas[1].height);
+            document.querySelector("#videoRecordStatus").style.display = 'block'
+            mode = 'none';
+            setTimeout($('#post_update').fadeOut(4000, ()=>{
+              document.querySelector('#post_update').style.display = 'none';
+            }), 3000);
+        });
+      }
+
+      document.querySelector("#proceedVideo").addEventListener('click', async function() {
+          let el = document.querySelector("#videoModal");
+          el.style.display = 'none';
+      });
+
+      document.querySelector("#proceedImage").addEventListener('click', async function() {
+          let el = document.querySelector("#imageModal");
+          el.style.display = 'none';
+
+          // document.querySelector("#videoModalBody").innerHTML = '<video id="myVideo" class="video-js vjs-default-skin myVideo" style="object-fit: contain;"></video>'
+          document.querySelector("#videoRecordStatus").style.display = 'none'
+          video_button.innerHTML = 'Record video'
+          //<video id="myVideo" class="video-js vjs-default-skin myVideo" style="object-fit: contain;"></video>
+      });
+
+      video_button.addEventListener('click', async function() {
+          let el = document.querySelector("#videoModal");
+          el.style.display = 'block';
+      });
+
+      camera_button.addEventListener('click', async function() {
+          let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+          video.srcObject = stream;
+
+          let el = document.querySelector("#imageModal");
+          el.style.display = 'block';
+
+          canvas[0].style.display = 'none';
+          canvas[1].style.display = 'none'; 
+
+          video.style.display = 'block';
+      });
+
+      click_button.addEventListener('click', function() {
+          canvas[0].getContext('2d').drawImage(video, 0, 0, canvas[0].width, canvas[0].height);
+          image_data_url = canvas[0].toDataURL('image/png').replace("image/png", "image/octet-stream");;
+
+          canvas[1].getContext('2d').drawImage(video, 0, 0, canvas[1].width, canvas[1].height);
+
+          // data url of the image
+          // console.log(image_data_url);
+
+          video.style.display = 'none';
+          canvas[0].style.display = 'block';
+          canvas[1].style.display = 'block';
+
+          mode = 'image'
+      });
+
+      function closeModal(){
+        document.querySelector("#videoModal").style.display = 'none';
+        document.querySelector("#imageModal").style.display = 'none';
+      }
+
+      var videoMaxLengthInSeconds = 120;
+
+      sWidth = 720;
+      sHeight = 480;
+
+      canvas[0].width = sWidth;
+      canvas[0].height = sHeight;
+
+      canvas[1].width = sWidth;
+      canvas[1].height = sHeight;
+
+      video.width = sWidth;
+      video.height = sHeight;
+      // console.log(sWidth, sHeight)
+
+      var videoBlob = null;
+
+      // Inialize the video player
+      var player = videojs("myVideo", {
+          controls: true,
+          width: sWidth,
+          height: sHeight,
+          fluid: false,
+          plugins: {
+              record: {
+                  audio: true,
+                  video: true,
+                  maxLength: videoMaxLengthInSeconds,
+                  debug: true,
+                  videoMimeType: "video/webm"
+              }
+          }
+        }, function(){
+            // print version information at startup
+            videojs.log(
+                'Using video.js', videojs.VERSION,
+                'with videojs-record', videojs.getPluginVersion('record'),
+                'and recordrtc', RecordRTC.version
+            );
+        });
+
+        // error handling for getUserMedia
+        player.on('deviceError', function() {
+            console.log('device error:', player.deviceErrorCode);
+        });
+
+        // Handle error events of the video player
+        player.on('error', function(error) {
+            console.log('error:', error);
+        });
+
+        // user clicked the record button and started recording !
+        player.on('startRecord', function() {
+            console.log('started recording! Do whatever you need to');
+        });
+
+        // user completed recording and stream is available
+        // Upload the Blob to your server or download it locally !
+        player.on('finishRecord', function() {
+
+            // the blob object contains the recorded data that
+            // can be downloaded by the user, stored on server etc.
+            videoBlob = player.recordedData
+            video_button.innerHTML = 'Record again'
+            canvas[0].style.display = 'none';
+            canvas[1].style.display = 'none';
+
+            canvas[0].getContext('2d').clearRect(0, 0, canvas[0].width, canvas[0].height);
+            canvas[1].getContext('2d').clearRect(0, 0, canvas[1].width, canvas[1].height);
+            document.querySelector("#videoRecordStatus").style.display = 'block'
+
+            // player.record().saveAs({'video': 'my-video-file-name.webm'});
+
+            mode = 'video'
+            // console.log('finished recording: ', player);
+        });
+
+        function uploadFile(e){
+          // console.log(e.files[0]);
+          mode = 'upload'
+
+          video_button.innerHTML = 'Record video'
+          canvas[0].style.display = 'none';
+          canvas[1].style.display = 'none';
+
+          canvas[0].getContext('2d').clearRect(0, 0, canvas[0].width, canvas[0].height);
+          canvas[1].getContext('2d').clearRect(0, 0, canvas[1].width, canvas[1].height);
+          document.querySelector("#videoRecordStatus").style.display = 'none'
+        }
+
+        function blobToDataURL(blob){
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result);
+            reader.onerror = e => reject('new Error("Read aborted"');
+            reader.onabort = e => reject(new Error("Read aborted"));
+            reader.readAsDataURL(blob);
+          });
+        }
+
+        $('#shareAttendance').click(async function(event) {
+          event.preventDefault();
+          var name = document.querySelector("#name").value
+          var message = document.querySelector("#message").value
+          if (name.length <= 0 || message.length <= 0 || mode == 'none'){
+            var status_text = document.getElementsByClassName('status_text')[0];
+            status_text.innerHTML = "<strong>Error! </strong> Please make sure you enter a Name and Message, And also make sure you record/upload a greeting Photo/Video!";
+            status_text.style.backgroundColor = "#f43636";
+            $('#post_update').fadeIn(3000, ()=>{
+                document.querySelector('#post_update').style.display = 'block';
+                setTimeout($('#post_update').fadeOut(3000, ()=>{
+                  document.querySelector('#post_update').style.display = 'none';
+                }), 3000);
+            });
+            // alert('Please enter Name and Message, And also make sure you record a greeting Photo/Video!')
+            return
+          }
+          var data = null;
+          if (mode == 'video'){
+
+            var data = videoBlob;
+            var formData = new FormData();
+            formData.append('file', data, data.name);
+
+            // console.log('uploading recording:', data.name);
+            var fileData = "";
+            fetch('/upload2', {
+                method: 'POST',
+                body: formData
+            }).then(
+                success => success.json()
+            ).then(d => {
+              // console.log('data',d);
+               $.ajax({
+                url: '/upload',
+                type: 'post',
+                dataType: 'text',
+                data: { name: name, message: message, data: "", mode: mode, filename:d.filename, type: d.type },
+                success: function(dt) {
+                  // console.log(dt);
+                  uploadFinished();
+                }
+              });
+
+           })
+            .catch(error => {
+                // console.error('an upload error occurred!')
+
+                var status_text = document.getElementsByClassName('status_text')[0];
+                status_text.innerHTML = "<strong>Error! </strong> Can't upload the file. Unknown error accured!!";
+                status_text.style.backgroundColor = "#f43636";
+                $('#post_update').fadeIn(3000, ()=>{
+                    document.querySelector('#post_update').style.display = 'block';
+                    setTimeout($('#post_update').fadeOut(3000, ()=>{
+                      document.querySelector('#post_update').style.display = 'none';
+                    }), 3000);
+                });
+            });
+
+          }else if(mode == 'image'){
+            data = image_data_url;
+              $.ajax({
+              url: '/upload',
+              type: 'post',
+              dataType: 'text',
+              data: { name: name, message: message, data: data, mode: mode, filename:'image', type:'png' },
+              success: function(d) {
+                // console.log(d);
+                uploadFinished();
+              }
+            });
+          }else if(mode == 'upload') {
+
+            var formData = new FormData();
+            formData.append('file', document.querySelector("#greeting").files[0], 'upload');
+
+            // console.log('uploading recording:', 'testfile');
+            var filename = "";
+            fetch('/upload2', {
+                method: 'POST',
+                body: formData
+            }).then(
+                success => success.json()
+            ).then(d => {
+              // console.log('data',d);
+               $.ajax({
+                url: '/upload',
+                type: 'post',
+                dataType: 'text',
+                data: { name: name, message: message, data: "", mode: mode, filename:d.filename, type: d.type },
+                success: function(dt) {
+                  // console.log(dt);
+                  uploadFinished();
+                }
+              });
+
+           })
+            .catch(error => {
+              var status_text = document.getElementsByClassName('status_text')[0];
+                status_text.innerHTML = "<strong>Error! </strong> Can't upload the file. Unknown error accured!!";
+                status_text.style.backgroundColor = "#f43636";
+                $('#post_update').fadeIn(3000, ()=>{
+                    document.querySelector('#post_update').style.display = 'block';
+                    setTimeout($('#post_update').fadeOut(3000, ()=>{
+                      document.querySelector('#post_update').style.display = 'none';
+                    }), 3000);
+                });
+            });
+          }
+        });
+      
+    </script>
+  </body>
+</html>

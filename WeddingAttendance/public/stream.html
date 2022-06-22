@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Attendance</title>
+    <link rel="stylesheet" type="text/css" href="stream_style.css">
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    <style type="text/css">
+      
+    </style>
+  </head>
+  <body>
+    <div id='header'>
+        <h2>Wedding Attendance Stream</h2>
+        <div><a href="/">Post</a></div>
+    </div>
+    <div id="post_update" class="alert" style="display: none;">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        <div class="status_text"><strong>Post update!</strong> Post update found please refresh the page to see them :)</div>
+    </div>
+    <div id="container">
+        <div id="empty" style="display: none; margin:15px">
+            <h4>No posts found!</h4> 
+            <h4>Please post your own to see them here...</h4>
+        </div>
+        <div id="spinner"><div class='spinner-loader' ></div></div>
+        
+    </div>
+
+    <script src="https://code.jquery.com/jquery-2.2.1.min.js"
+        integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
+        crossorigin="anonymous"></script>
+    
+    <script type="text/javascript">
+
+        let postsCnt = 0;
+        let loadedContent = 0;
+        let loadContentAdd = 7;
+        let content = [];
+
+        function secondsToTime(sec) {
+            var days = Math.floor(sec / 86400);
+            var weeks = days / 7;
+            var months = days / 30;
+            var years = months / 12;
+
+            if (years >= 1) return parseInt(years) + " years ago";
+            else if(months >= 1) return parseInt(months) + " months ago";
+            else if (weeks >= 1) return parseInt(weeks) + " weeks ago";
+            else if (days >= 1) return parseInt(days) + " days ago";
+            else if (sec > 60*60) return (Math.floor(sec / (60*60))) + " hours ago"
+            else return (Math.floor(sec / 60)) + " minutes ago"
+        }
+
+        function timeConverter(time){
+            var date = time;
+            var cDate = Date.now();
+            var diff = Math.floor((cDate - date)/1000);
+            // console.log(date, cDate, diff);
+            if (diff < 60){
+                return diff + " seconds ago";
+            }else if(diff > 60){
+                return secondsToTime(diff);
+            }
+        }
+
+        function update(){
+            $.ajax({
+                url: '/getUpdate',
+                type: 'post',
+                dataType: 'json',
+                data: {'cnt': postsCnt},
+                success: function(d) {
+                    // console.log(d);
+                    if (d['update']){
+                        $('#post_update').fadeIn(2000, ()=>{
+                            document.querySelector('#post_update').style.display = 'block';
+                            setTimeout($('#post_update').fadeOut(4000, ()=>{
+                            document.querySelector('#post_update').style.display = 'none';
+                            }), 7000);
+                        });
+                        postsCnt = d['cnt'];
+                    }
+                }
+              });
+        }
+
+        function load(){
+            $.ajax({
+                url: '/load',
+                type: 'post',
+                dataType: 'json',
+                data: {'start':loadedContent, 'end':loadedContent+loadContentAdd},
+                success: function(d) {
+                    // console.log(d);
+                    content = d;
+                    document.querySelector('#spinner').style.display = 'none';
+                    content.sort(function(a, b) {
+                        var keyA = new Date(a.time), keyB = new Date(b.time);
+                        // Compare the 2 dates
+                        if (keyA > keyB) return -1;
+                        if (keyA < keyB) return 1;
+                        return 0;
+                    });
+                    setInterval(update, 5000);
+                    if (content.length <= 0){
+                        document.querySelector('#empty').style.display = 'block'
+                        return
+                    }
+                    postsCnt = d.length;
+                    var container = document.querySelector('#container');
+                    container.innerHTML = "";
+                    content.slice(0,loadContentAdd).map((item, i) => {
+                        if (item.type == 'video'){
+                            container.innerHTML += `<div class="post_holder"><div class="post_username">${item.username}</div><div class="post_content"><video muted controls autoplay><source src="${"/video/" + item.file}" type="video/${item.ext}"></video></div><div class="post_caption"><div class="caption">${item.message}</div><div class="post_timing">${timeConverter(item.time)}</div></div></div>`;
+                        }else{
+                            container.innerHTML += `<div class="post_holder"><div class="post_username">${item.username}</div><div class="post_content"><img src="${item.file}"/></div><div class="post_caption"><div class="caption">${item.message}</div><div class="post_timing">${timeConverter(item.time)}</div></div></div>`;
+                        }
+                    })
+                    loadedContent = loadContentAdd;
+                }
+              });
+        }
+
+        $( document ).ready(function() {
+            load();
+            $(window).scroll(function() {
+                if (loadedContent >= content.length-1) return;
+                if($(window).scrollTop() >= $('#container').offset().top + $('#container').outerHeight() - window.innerHeight) {
+                    var container = document.querySelector('#container');
+                    content.slice(loadedContent,loadedContent+loadContentAdd).map((item, i) => {
+                        if (item.type == 'video'){
+                            container.innerHTML += `<div class="post_holder"><div class="post_username">${item.username}</div><div class="post_content"><video muted controls autoplay><source src="${"/video/" + item.file}" type="video/${item.ext}"></video></div><div class="post_caption"><div class="caption">${item.message}</div><div class="post_timing">${timeConverter(item.time)}</div></div></div>`;
+                        }else{
+                            container.innerHTML += `<div class="post_holder"><div class="post_username">${item.username}</div><div class="post_content"><img src="${item.file}"/></div><div class="post_caption"><div class="caption">${item.message}</div><div class="post_timing">${timeConverter(item.time)}</div></div></div>`;
+                        }
+                    })
+                    loadedContent += loadContentAdd;
+                }
+            });
+         });
+    </script>
+  </body>
+</html>

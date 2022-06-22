@@ -17,7 +17,7 @@
     </div>
     <div id="post_update" class="alert" style="display: none;">
         <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-        <div class="status_text"><strong>Post update!</strong> Post update found please refresh the page to see them :)</div>
+        <div class="status_text"><strong>Copy:</strong> Link copied successfully!</div>
     </div>
     <div id="container">
         <div id="empty" style="display: none; margin:15px">
@@ -74,7 +74,7 @@
                 success: function(d) {
                     // console.log(d);
                     if (d['update']){
-                        $('#post_update').fadeIn(2000, ()=>{
+                        $('#post_update').fadeIn(1000, ()=>{
                             document.querySelector('#post_update').style.display = 'block';
                             setTimeout($('#post_update').fadeOut(4000, ()=>{
                             document.querySelector('#post_update').style.display = 'none';
